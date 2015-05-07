@@ -48,7 +48,7 @@ ISR(PCINT0_vect)    	//when pin level changes
 
 	pulse = TCNT1;			//saves counter/timer1 into pulse variable
 	
-	PORTB |= (1 << PORTB4);		//led is on when interrupt is intialized
+	PORTB |= (1 << PORTB4);		//debug-pin is high to indicate that interrupt is intialized
 
 	if(PINB & (1 << PINB3))			//if PB3 is HIGH
 	{
