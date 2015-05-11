@@ -25,7 +25,7 @@
 #include <avr/interrupt.h>
  
 #define F_CPU 8000000UL			//defines clock as 8Mhz
-#define PORTB4 = debugPin		//defines PB4 as debuPin
+#define PORTB4 = debugPin		//defines PB4 as debugPin
 
 int main(void)
 {
