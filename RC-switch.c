@@ -24,35 +24,36 @@
 #include <avr/interrupt.h>
  
 #define F_CPU 8000000UL			//defines clock as 8Mhz
+#define PORTB4 = debugPin		//defines PB4 as debuPin
 
 int main(void)
 {
 	GIMSK |= (1 << PCIE);		//enable pin change interrupt
 	PCMSK |= (1 << PCINT3); 	//mask PB3 as pin chang interrupt pin
-	sei();			//enable gloabal interrupt
+	sei();			//enable global interrupt
 	
 	DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB2 | 1 << DDB4);		//sets PB0, PB1, PB2 and PB4 as output pins
 
-	TCCR1 |= (1 << CS13); 		 //set counter/timer1 to increment every 16 us
+	TCCR1 |= (1 << CS13); 		 //set Timer/Counter1 to increment every 16 us
 	
-	while(1)
+	while(1)		//leave blank or put your own code here
 	{
 		
 	}
 	
 }
 
-ISR(PCINT0_vect)    	//when pin level changes
+ISR(PCINT0_vect)    	//when pin level changes on PB3
 { 
 	static uint8_t pulse;
 
-	pulse = TCNT1;			//saves counter/timer1 into pulse variable
+	pulse = TCNT1;			//saves Timer/Counter1 into pulse variable
 	
-	PORTB |= (1 << PORTB4);		//debug-pin is high to indicate that interrupt is intialized
+	PORTB |= (1 << debugPin);		//pin is HIGH on when interrupt is intialized
 
 	if(PINB & (1 << PINB3))			//if PB3 is HIGH
 	{
-		TCNT1 = 0;		//resets counter/timer1
+		TCNT1 = 0;		//resets Timer/Counter1
 	}
 	
 	else
@@ -71,7 +72,7 @@ ISR(PCINT0_vect)    	//when pin level changes
 				PORTB |= (1 << PORTB0);			//LED red indicates backward motion
 			}	
 			
-		else
+		else 	//if µs is 1480> or <1520 - dead span to prevent glitches on relay when stick is in centre position
 		{
 			
 		}
