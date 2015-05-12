@@ -59,7 +59,7 @@ ISR(PCINT0_vect)		//when pin level changes on PB3
 	if(PINB & (1 << PINB3))			//if PB3 is HIGH
 	{
 		TCNT1 = 0;			//resets Timer/Counter1
-	}
+	} 
 	
 	else
 	{
