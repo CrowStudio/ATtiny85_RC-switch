@@ -70,10 +70,16 @@ int main(void)
 	TIMSK |= (1 << TOIE1);		//enable Counter/Timer1 overflow interrupt
 	sei();			//enable gloabal interrupt
 	
-	while(1)		//leave or put your own code here
+	while(1)		//leave and/or put your own code here
 	{
-		while(pInt == 1)			//PCNINT-while-loop
+		if(pInt == 1)			//PCNINT-if-statment
 		{
+//			pulse = TCNT1;			//saves Timer/Counter1 into pulse variable
+			
+//			PORTB |= (1 << debugPin);		//pin is HIGH on when interrupt is intialized
+			
+			pulse16 = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to be able to set if-statements in PCINT-while-loop with µs
+				
 			if(PINB & (1 << PINB3))			//if PB3 is HIGH
 			{
 				TCNT1 = 0;		//resets Timer/Counter1
@@ -82,7 +88,7 @@ int main(void)
 			
 			else 		
 			{ 
-				if (pulse16 >=1520)			//when stick 1 travels from 1520 µs towards 2006 µs
+				if (pulse16 >1555)			//when stick 1 travels from 1555 µs towards 2006 µs
 //				if((tot_overflow == 5 && pulse > 240) || tot_overflow > 6)			
 				{
 					PORTB &= ~(1 << relayPin);		  //relay pole switch, + & - on motor 
@@ -90,25 +96,30 @@ int main(void)
 					PORTB &= ~(1 << redLED);		//turn off red LED
 				}
 				
-				else if (pulse16 <=1480)			//when stick 1 travels from 1480 ms towards 920 µs
-//				else if((tot_overflow == 5 && pulse < 200) || tot_overflow  < 5)
+					else if (pulse16 <1490)			//when stick 1 travels from 1490 ms towards 920 µs
+//					else if((tot_overflow == 5 && pulse < 200) || tot_overflow  < 5)
 					{
 						PORTB |= (1 << relayPin);		 //relay pole switch, - & + on motor 
 						PORTB &= ~(1 << greenLED);		  //turn off green LED
 						PORTB |= (1 << redLED);			//LED red indicates backward motion
 					}	
 				
-				else        //if µs is 1480> or <1520 - dead-span to prevent gliteches on relay when stick is in centre position
+				else        //if µs is 1490> or <1555 - dead-span to prevent gliteches on relay when stick is in centre position
 				{ 
-					//PORTB |= (1 << greenLED);			//for debug to indicate dead-span	
-					//PORTB |= (1 << redLED);			//for debug to indicate dead-span
-				}
-						
+//					PORTB |= (1 << greenLED);			//for debug to indicate dead-span	
+//					PORTB |= (1 << redLED);			//for debug to indicate dead-span	
+				}	
+
 			}
-			
-			pInt = 0;		//resets pInt to exit PCNINT-while-loop
+							
+			pInt = 0;		//resets pInt to exit PCNINT-if-statment
 		}
 		
+		else
+		{
+			
+		}
+			
 	}
 	
 }
@@ -118,14 +129,7 @@ ISR(TIMER1_OVF_vect)			//when Counter/Timer1 overflows
     tot_overflow++;			// keeps track of Counter/Timer1's overflow
 }
 
-ISR(PCINT0_vect)    	//when pin level changes on PB3
+ISR(PCINT0_vect)    	//when pin-level changes on PB3
 { 
-//	pulse = TCNT1;			//saves Timer/Counter1 into pulse variable
-	
-	PORTB |= (1 << debugPin);		//pin is HIGH on when interrupt is intialized
-
 	pInt = 1;			//indicates PCINT
-	
-	pulse16 = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to be able to set if-statements in PCINT-while-loop with µs
-	
 }
