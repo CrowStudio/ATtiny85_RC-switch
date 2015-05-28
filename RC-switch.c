@@ -62,7 +62,7 @@ int main(void)
 {
 	DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB2 | 1 << DDB4);		//sets PB0, PB1, PB2 and PB4 as output pins
 	
-//  TCCR1 |= (1 << CS13);		//set Timer/Counter1 to increment every 16 us
+//	TCCR1 |= (1 << CS13);		//set Timer/Counter1 to increment every 16 us
 	TCCR1 |= (1 << CS12); 		 //set Counter/Timer1 prescaler to increment every 1µs
 	
 	GIMSK |= (1 << PCIE);		//enable pin change interrupt
@@ -83,7 +83,7 @@ int main(void)
 			else 		
 			{ 
 				if (pulse16 >=1520)			//when stick 1 travels from 1520 µs towards 2006 µs
-			 // if((tot_overflow == 5 && pulse > 240) || tot_overflow > 6)			
+//				if((tot_overflow == 5 && pulse > 240) || tot_overflow > 6)			
 				{
 					PORTB &= ~(1 << relayPin);		  //relay pole switch, + & - on motor 
 					PORTB |= (1 << greenLED);		 //LED green indicates forward motion
@@ -91,7 +91,7 @@ int main(void)
 				}
 				
 				else if (pulse16 <=1480)			//when stick 1 travels from 1480 ms towards 920 µs
-			 // else if((tot_overflow == 5 && pulse < 200) || tot_overflow  < 5)
+//				else if((tot_overflow == 5 && pulse < 200) || tot_overflow  < 5)
 					{
 						PORTB |= (1 << relayPin);		 //relay pole switch, - & + on motor 
 						PORTB &= ~(1 << greenLED);		  //turn off green LED
@@ -120,7 +120,7 @@ ISR(TIMER1_OVF_vect)			//when Counter/Timer1 overflows
 
 ISR(PCINT0_vect)    	//when pin level changes on PB3
 { 
-// 	pulse = TCNT1;			//saves Timer/Counter1 into pulse variable
+//	pulse = TCNT1;			//saves Timer/Counter1 into pulse variable
 	
 	PORTB |= (1 << debugPin);		//pin is HIGH on when interrupt is intialized
 
