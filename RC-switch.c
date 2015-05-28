@@ -90,7 +90,7 @@ int main(void)
 			else 		
 			{ 
 				if (pulse16 >1555)			//when stick 1 travels from 1555 µs towards 2006 µs
-//				if((tot_overflow == 5 && pulse > 240) || tot_overflow > 6)			
+//				if((tot_overflow == 5 && pulse > 240) || tot_overflow > 6)			//when stick 1 travels from 1520 µs towards 2006 µs
 				{
 					PORTB &= ~(1 << relayPin);		  //relay pole switch, + & - on motor 
 					PORTB |= (1 << greenLED);		 //LED green indicates forward motion
@@ -98,7 +98,7 @@ int main(void)
 				}
 				
 					else if (pulse16 <1490)			//when stick 1 travels from 1490 ms towards 920 µs
-//					else if((tot_overflow == 5 && pulse < 200) || tot_overflow  < 5)
+//					else if((tot_overflow == 5 && pulse < 200) || tot_overflow  < 5)		//when stick 1 travels from 1480 ms towards 920 µs
 					{
 						PORTB |= (1 << relayPin);		 //relay pole switch, - & + on motor 
 						PORTB &= ~(1 << greenLED);		  //turn off green LED
