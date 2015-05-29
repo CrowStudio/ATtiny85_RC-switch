@@ -33,11 +33,11 @@
  * throttle stick and do the following: 
  * When you move the stick up, the motor will go into forward motion, 
  * and when you move the stick back to the centre - 1500 µs - the motor 
- * stops. Once the stick's position will go below 1480 µs (or other 
+ * stops. Once the stick's position will go below 1490 µs (or other 
  * value of your choice) the switch will change the polarity of the 
  * motor and it will go into reverse motion, when it comes back to 
  * centre the motor once again stops. If you then again move the 
- * stick's position above 1520 µs (or other value of your choice) the 
+ * stick's position above 1555 µs (or other value of your choice) the 
  * switch will change the polarity back to it's origin and the motor 
  * will once again go into forward motion.
  *  
