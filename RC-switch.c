@@ -54,8 +54,8 @@
 #define redLED PORTB0		//defines PB0 as redLED
 
 // volatile uint8_t pulse;				// global variable to store pulse length
-volatile uint8_t tot_overflow;			// global variable to count the number of Timer/Counter1 overflows
-volatile uint16_t pulse16;			//global variable to make a 16 bit integer from tot_overflow and TCNT1
+volatile uint8_t tot_overflow;			// global variable to count the number of Timer/Counter1 overflows  (use this when Counter/Timer1 step is incremnt by 1 µs)
+volatile uint16_t pulse16;			//global variable to make a 16 bit integer from tot_overflow and TCNT1  (use this when Counter/Timer1 step is incremnt by 1 µs)
 volatile uint8_t pInt;				// global variable to indicate PCINT
 
 
@@ -64,11 +64,11 @@ int main(void)
 	DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB2 | 1 << DDB4);		//sets PB0, PB1, PB2 and PB4 as output pins
 	
 //	TCCR1 |= (1 << CS13);		//set Timer/Counter1 to increment every 16 us
-	TCCR1 |= (1 << CS12); 		 //set Counter/Timer1 prescaler to increment every 1µs
+	TCCR1 |= (1 << CS12); 		 //set Counter/Timer1 prescaler to increment every 1µs  
 	
 	GIMSK |= (1 << PCIE);		//enable pin change interrupt
 	PCMSK |= (1 << PCINT3); 	//mask PB3 as pin chang interrupt pin
-	TIMSK |= (1 << TOIE1);		//enable Counter/Timer1 overflow interrupt
+	TIMSK |= (1 << TOIE1);		//enable Counter/Timer1 overflow interrupt  (use this when Counter/Timer1 step is incremnt by 1 µs)
 	sei();			//enable gloabal interrupt
 	
 	while(1)		//leave and/or put your own code here
@@ -79,33 +79,34 @@ int main(void)
 			
 //			PORTB |= (1 << debugPin);		//pin is HIGH on when interrupt is intialized
 			
-			pulse16 = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to be able to set if-statements in PCINT-while-loop with µs
-				
+			pulse16 = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to be able to set if-statements in PCINT-while-loop with µs  (use this when Counter/Timer1 step is incremnt by 1 µs)
+															
 			if(PINB & (1 << PINB3))			//if PB3 is HIGH
 			{
 				TCNT1 = 0;		//resets Timer/Counter1
-				tot_overflow = 0;		//resets tot_overflow variable
+				tot_overflow = 0;		//resets tot_overflow variable   (use this when Counter/Timer1 step is incremnt by 1 µs)
 			}
 			
 			else 		
 			{ 
-				if (pulse16 >1555)			//when stick 1 travels from 1555 µs towards 2006 µs
-//				if((tot_overflow == 5 && pulse > 240) || tot_overflow > 6)			//when stick 1 travels from 1520 µs towards 2006 µs
+				if (pulse16 >1555)			//when stick 1 travels from 1555 µs towards 2006 µs  (use this when Counter/Timer1 step is incremnt by 1 µs)
+//				if(pulse > 97)			//when stick 1 travels from 1552 µs towards 2006 µs
 				{
 					PORTB &= ~(1 << relayPin);		  //relay pole switch, + & - on motor 
 					PORTB |= (1 << greenLED);		 //LED green indicates forward motion
 					PORTB &= ~(1 << redLED);		//turn off red LED
 				}
 				
-					else if (pulse16 <1490)			//when stick 1 travels from 1490 ms towards 920 µs
-//					else if((tot_overflow == 5 && pulse < 200) || tot_overflow  < 5)		//when stick 1 travels from 1480 ms towards 920 µs
+					else if (pulse16 <1490)			//when stick 1 travels from 1490 ms towards 920 µs  (use this when Counter/Timer1 step is incremnt by 1 µs)
+//					else if (pulse < 93) 		//when stick 1 travels from 1488 µs towards 920 µs
 					{
 						PORTB |= (1 << relayPin);		 //relay pole switch, - & + on motor 
 						PORTB &= ~(1 << greenLED);		  //turn off green LED
 						PORTB |= (1 << redLED);			//LED red indicates backward motion
 					}	
 				
-				else        //if µs is 1490> or <1555 - dead-span to prevent gliteches on relay when stick is in centre position
+				else        //if µs is 1490> or <1555 - dead-span to prevent gliteches on relay when stick is in centre position (use this when Counter/Timer1 step is incremnt by 1 µs)
+//				else 	 	//if µs is 1488> or <1552 - dead span to prevent glitches on relay when stick is in centre position
 				{ 
 //					PORTB |= (1 << greenLED);			//for debug to indicate dead-span	
 //					PORTB |= (1 << redLED);			//for debug to indicate dead-span	
@@ -113,7 +114,7 @@ int main(void)
 
 			}
 							
-			pInt = 0;		//resets pInt to exit PCNINT-if-statment
+			pInt = 0;		//resets pInt to exit PCNINT-if-statment   
 		}
 		
 		else
@@ -125,7 +126,7 @@ int main(void)
 	
 }
 
-ISR(TIMER1_OVF_vect)			//when Counter/Timer1 overflows
+ISR(TIMER1_OVF_vect)			//when Counter/Timer1 overflows  (use this when Counter/Timer1 step is incremnt by 1 µs)
 {
     tot_overflow++;			// keeps track of Counter/Timer1's overflow
 }
