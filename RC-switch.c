@@ -53,9 +53,7 @@
 #define greenLED PORTB1		 //defines PB1 as greenLED
 #define redLED PORTB0		//defines PB0 as redLED
 
-// volatile uint8_t pulse;				// global variable to store pulse length
-volatile uint8_t tot_overflow;			// global variable to count the number of Timer/Counter1 overflows  (use this when Counter/Timer1 step is incremnt by 1 µs)
-volatile uint16_t pulse16;			//global variable to make a 16 bit integer from tot_overflow and TCNT1  (use this when Counter/Timer1 step is incremnt by 1 µs)
+volatile uint8_t tot_overflow;			// global variable to count the number of Timer/Counter1 overflows  (use this when PCK/8)
 volatile uint8_t pInt;				// global variable to indicate PCINT
 
 
@@ -63,33 +61,36 @@ int main(void)
 {
 	DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB2 | 1 << DDB4);		//sets PB0, PB1, PB2 and PB4 as output pins
 	
-//	TCCR1 |= (1 << CS13);		//set Timer/Counter1 to increment every 16 us
-	TCCR1 |= (1 << CS12); 		 //set Counter/Timer1 prescaler to increment every 1µs  
+//	TCCR1 |= (1 << CS13);		//set Timer/Counter1 to increment every 16 us (PCK/128)
+	TCCR1 |= (1 << CS12); 		 //set Counter/Timer1 prescaler to increment every 1µs (PCK/8)  
 	
 	GIMSK |= (1 << PCIE);		//enable pin change interrupt
 	PCMSK |= (1 << PCINT3); 	//mask PB3 as pin chang interrupt pin
-	TIMSK |= (1 << TOIE1);		//enable Counter/Timer1 overflow interrupt  (use this when Counter/Timer1 step is incremnt by 1 µs)
+	TIMSK |= (1 << TOIE1);		//enable Counter/Timer1 overflow interrupt  (use this when PCK/8)
 	sei();			//enable gloabal interrupt
 	
 	while(1)		//leave and/or put your own code here
 	{
 		if(pInt == 1)			//PCNINT-if-statment
 		{
+//			static uint8_t pulse;				// global variable to store pulse length
+			static uint16_t pulse16;			//global variable to make a 16 bit integer from tot_overflow and TCNT1  (use this when PCK/8)
+
 //			pulse = TCNT1;			//saves Timer/Counter1 into pulse variable
 			
 //			PORTB |= (1 << debugPin);		//pin is HIGH on when interrupt is intialized
 			
-			pulse16 = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to be able to set if-statements in PCINT-while-loop with µs  (use this when Counter/Timer1 step is incremnt by 1 µs)
+			pulse16 = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to be able to set if-statements in PCINT-while-loop with µs  (use this when PCK/8)
 															
 			if(PINB & (1 << PINB3))			//if PB3 is HIGH
 			{
 				TCNT1 = 0;		//resets Timer/Counter1
-				tot_overflow = 0;		//resets tot_overflow variable   (use this when Counter/Timer1 step is incremnt by 1 µs)
+				tot_overflow = 0;		//resets tot_overflow variable   (use this when PCK/8)
 			}
 			
 			else 		
-			{ 
-				if (pulse16 >1555)			//when stick 1 travels from 1555 µs towards 2006 µs  (use this when Counter/Timer1 step is incremnt by 1 µs)
+			{ 		
+				if (pulse16 >1555)			//when stick 1 travels from 1555 µs towards 2006 µs  (use this when PCK/8)
 //				if(pulse > 97)			//when stick 1 travels from 1552 µs towards 2006 µs
 				{
 					PORTB &= ~(1 << relayPin);		  //relay pole switch, + & - on motor 
@@ -97,7 +98,7 @@ int main(void)
 					PORTB &= ~(1 << redLED);		//turn off red LED
 				}
 				
-					else if (pulse16 <1490)			//when stick 1 travels from 1490 ms towards 920 µs  (use this when Counter/Timer1 step is incremnt by 1 µs)
+					else if (pulse16 <1490)			//when stick 1 travels from 1490 ms towards 920 µs  (use this when PCK/8)
 //					else if (pulse < 93) 		//when stick 1 travels from 1488 µs towards 920 µs
 					{
 						PORTB |= (1 << relayPin);		 //relay pole switch, - & + on motor 
@@ -105,7 +106,7 @@ int main(void)
 						PORTB |= (1 << redLED);			//LED red indicates backward motion
 					}	
 				
-				else        //if µs is 1490> or <1555 - dead-span to prevent gliteches on relay when stick is in centre position (use this when Counter/Timer1 step is incremnt by 1 µs)
+				else        //if µs is 1490> or <1555 - dead-span to prevent gliteches on relay when stick is in centre position (use this when PCK/8)
 //				else 	 	//if µs is 1488> or <1552 - dead span to prevent glitches on relay when stick is in centre position
 				{ 
 //					PORTB |= (1 << greenLED);			//for debug to indicate dead-span	
@@ -114,7 +115,7 @@ int main(void)
 
 			}
 							
-			pInt = 0;		//resets pInt to exit PCNINT-if-statment   
+			pInt = 0;		//resets "PCINT-flag"
 		}
 		
 		else
@@ -126,12 +127,12 @@ int main(void)
 	
 }
 
-ISR(TIMER1_OVF_vect)			//when Counter/Timer1 overflows  (use this when Counter/Timer1 step is incremnt by 1 µs)
+ISR(TIMER1_OVF_vect)			//when Counter/Timer1 overflows  (use this when PCK/8)
 {
     tot_overflow++;			// keeps track of Counter/Timer1's overflow
 }
 
 ISR(PCINT0_vect)    	//when pin-level changes on PB3
 { 
-	pInt = 1;			//indicates PCINT
+	pInt = 1;			//sets "PCINT-flag" to indicate Pin-Change-INterrupt
 }
