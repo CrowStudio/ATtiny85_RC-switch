@@ -70,7 +70,7 @@ int main(void)
 		{
 			TIFR |= (1 << TOV1);		// clear counter1 overflow-flag
 			
-			tot_overflow ++;
+			tot_overflow ++;		//increase tot_overflow with one every time counter1 overflow
 		}
 		
 		if(GIFR & (1 << PCIF) )			//if pin change flag idicates pin change
