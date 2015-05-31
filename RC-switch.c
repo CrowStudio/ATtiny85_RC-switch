@@ -25,7 +25,7 @@
  * The ATtiny85 RC-switch reads the PWM-signal on channel one's pin 
  * (throttle) from a OrangeRx R615 receiver, it works as a polarity 
  * switch for a DC-motor controlled with a cheap electrical speed 
- * controller (ESC) that has no reverse. I have programmed my Spectrum 
+ * controller (ESC) that has no reverse. I have programmed my Spektrum 
  * DX7 radio's throttle stick to have zero speed in the centre and 
  * forward speed both up and down.
  * 
@@ -58,28 +58,28 @@ int main(void)
 {
 	DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB2 | 1 << DDB4);		//sets PB0, PB1, PB2 and PB4 as output pins
 	
-	TCCR1 |= (1 << CS12); 		//set Counter/Timer1 prescaler to increment every 1µs (PCK/8)  
+	TCCR1 |= (1 << CS12); 		//set Timer/Counter1 prescaler to increment every 1µs (PCK/8)  
 	GIMSK |= (1 << PCIE); 		//enable pin change interrupt
 	PCMSK |= (1 << PCINT3); 	  //mask PB3 as pin chang interrupt pin
 	
-	while(1)		//leave and/or put your own code here
+	while(1)		//leave or put your own code here
 	{
-		static uint8_t tot_overflow;		//variable to count the number of Timer/Counter1 overflows  
+		static uint8_t tot_overflow;		//variable to count the number of counter1 overflows  
 		
-		if (TIFR & (1 << TOV1) )
+		if (TIFR & (1 << TOV1) )		//if counter1 overflow flag idicates overflow
 		{
-			TIFR |= (1 << TOV1);		// clear timer-overflow-flag
+			TIFR |= (1 << TOV1);		// clear counter1 overflow-flag
 			
 			tot_overflow ++;
 		}
 		
-		if(GIFR & (1 << PCIF) )			//PCINT-flag idicates PCINT
+		if(GIFR & (1 << PCIF) )			//if pin change flag idicates pin change
 		{	
-			GIFR |= (1 << PCIF); 	//clear PCINT-flag	
+			GIFR |= (1 << PCIF); 	//clear pin change flag	
 					
-			uint16_t pulse = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 
+			uint16_t pulse = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to a 16 bit variable
 			
-			if (TIFR & (1 << TOV1) && (pulse & 0xff) < 0x80) 		//checks if the timer-overflow-flag is set and if the TCNT1-part of the puls-variable is less than 128
+			if (TIFR & (1 << TOV1) && (pulse & 0xff) < 0x80) 		//checks if the counter overflow flag is set and if the TCNT1 part of the puls variable is less than 128
 			{
 				pulse += 0x100;   //if pulse is bigger then 128 the overflow had not been counted
 			}
@@ -87,7 +87,7 @@ int main(void)
 			if(PINB & (1 << PINB3))			//if PB3 is HIGH
 			{
 				TCNT1 = 0;		//resets Timer/Counter1
-				TIFR |= (1 << TOV1);		// clear timer-overflow-flag
+				TIFR |= (1 << TOV1);		//clear counter overflow flag
 				tot_overflow = 0;		//resets tot_overflow variable  
 			}
 			
