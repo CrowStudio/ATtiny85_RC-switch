@@ -95,14 +95,14 @@ int main(void)
 			
 			else
 			{
-				if (pulse > 3110)			//when stick 1 travels from 1555 µs (1555*0.5 = 3110) towards 2006 µs  
+				if (pulse > 3110)			//when stick 1 travels from 1555 µs (1555/0.5 = 3110) towards 2006 µs  
 				{
 					PORTB &= ~(1 << relayPin);		  //relay pole switch, + & - on motor 
 					PORTB |= (1 << greenLED);		 //LED green indicates forward motion
 					PORTB &= ~(1 << redLED);		//turn off red LED
 				}
 				
-					else if (pulse < 2980)			//when stick 1 travels from 1490 µs (1490*0.5 = 2980) towards 920 µs  
+					else if (pulse < 2980)			//when stick 1 travels from 1490 µs (1490/0.5 = 2980) towards 920 µs  
 					{
 						PORTB |= (1 << relayPin);		 //relay pole switch, - & + on motor 
 						PORTB &= ~(1 << greenLED);		  //turn off green LED
