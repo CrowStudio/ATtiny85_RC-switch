@@ -58,7 +58,7 @@ int main(void)
 {
 	DDRB |= (1 << DDB0) | (1 << DDB1) | (1 << DDB2 | 1 << DDB4);		//sets PB0, PB1, PB2 and PB4 as output pins
 	
-	TCCR1 |= (1 << CS12); 		//set Timer/Counter1 prescaler to increment every 1µs (PCK/8)  
+	TCCR1 |= (1 << CS10) | (1 << CS11); 		//set Timer/Counter1 prescaler to increment every 0.5 µs (PCK/4)  
 	GIMSK |= (1 << PCIE); 		//enable pin change interrupt
 	PCMSK |= (1 << PCINT3); 	  //mask PB3 as pin chang interrupt pin
 	
@@ -75,13 +75,15 @@ int main(void)
 		
 		if(GIFR & (1 << PCIF) )			//if pin change flag idicates pin change
 		{	
+//			PORTB |= (1 << debugPin);		//for debugging to indicate that the interrupt flag is set	
+			
 			GIFR |= (1 << PCIF); 	//clear pin change flag	
-					
+								
 			uint16_t pulse = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to a 16 bit variable
 			
-			if (TIFR & (1 << TOV1) && (pulse & 0xff) < 0x80) 		//checks if the counter overflow flag is set and if the TCNT1 part of the puls variable is less than 128
+			if (TIFR & (1 << TOV1) && (pulse & 0xff) < 0x80) 		//checks if the counter overflow flag is set and if the TCNT1 part of the pulse variable is less than 128
 			{
-				pulse += 0x100;   //if pulse is bigger then 128 the overflow had not been counted
+				pulse += 0x100;   //compensate because overflow had not been counted
 			}
 			
 			if(PINB & (1 << PINB3))			//if PB3 is HIGH
@@ -93,14 +95,14 @@ int main(void)
 			
 			else
 			{
-				if (pulse > 1555)			//when stick 1 travels from 1555 µs towards 2006 µs  
+				if (pulse > 3110)			//when stick 1 travels from 1555 µs (3110/0.5 = 1555 µs) towards 2006 µs  
 				{
 					PORTB &= ~(1 << relayPin);		  //relay pole switch, + & - on motor 
 					PORTB |= (1 << greenLED);		 //LED green indicates forward motion
 					PORTB &= ~(1 << redLED);		//turn off red LED
 				}
 				
-					else if (pulse < 1490)			//when stick 1 travels from 1490 ms towards 920 µs  
+					else if (pulse < 2980)			//when stick 1 travels from 1490 µs (2980/0.5 = 1490 µs) towards 920 µs  
 					{
 						PORTB |= (1 << relayPin);		 //relay pole switch, - & + on motor 
 						PORTB &= ~(1 << greenLED);		  //turn off green LED
@@ -109,8 +111,8 @@ int main(void)
 			
 				else        //if µs is 1490> or <1555 - dead-span to prevent gliteches on relay when stick is in centre position 
 				{ 
-	//					PORTB |= (1 << greenLED);			//for debug to indicate dead-span	
-	//					PORTB |= (1 << redLED);			//for debug to indicate dead-span	
+//					PORTB |= (1 << greenLED);			//for debugging to indicate dead-span	
+//					PORTB |= (1 << redLED);			//for debugging to indicate dead-span	
 				}	
 				
 			}
@@ -120,5 +122,3 @@ int main(void)
 	}
 			
 }
-	
-
