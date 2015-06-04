@@ -65,6 +65,7 @@ int main(void)
 	while(1)		//leave or put your own code here
 	{
 		static uint8_t tot_overflow;		//variable to count the number of counter1 overflows  
+		static uint16_t pulse;			//variable to store value of overflow and TCNT1
 		
 		if (TIFR & (1 << TOV1) )		//if counter1 overflow flag idicates overflow
 		{
@@ -75,11 +76,11 @@ int main(void)
 		
 		if(GIFR & (1 << PCIF) )			//if pin change flag idicates pin change
 		{	
-//			PORTB |= (1 << debugPin);		//for debugging to indicate that the interrupt flag is set	
+			PORTB |= (1 << debugPin);		//for debugging to indicate that the interrupt flag is set	
 			
 			GIFR |= (1 << PCIF); 	//clear pin change flag	
 								
-			uint16_t pulse = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to a 16 bit variable
+			pulse = (tot_overflow << 8) | TCNT1;			//adds tot_overflow and TCNT1 to a 16 bit variable
 			
 			if (TIFR & (1 << TOV1) && (pulse & 0xff) < 0x80) 		//checks if the counter overflow flag is set and if the TCNT1 part of the pulse variable is less than 128
 			{
@@ -111,8 +112,8 @@ int main(void)
 			
 				else        //if µs is 1490> or <1555 - dead-span to prevent gliteches on relay when stick is in centre position 
 				{ 
-//					PORTB |= (1 << greenLED);			//for debugging to indicate dead-span	
-//					PORTB |= (1 << redLED);			//for debugging to indicate dead-span	
+					PORTB |= (1 << greenLED);			//for debugging to indicate dead-span	
+					PORTB |= (1 << redLED);			//for debugging to indicate dead-span	
 				}	
 				
 			}
